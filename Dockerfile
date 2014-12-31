@@ -3,12 +3,12 @@ FROM debian:jessie
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r memcache && useradd -r -g memcache memcache
 
-RUN apt-get update && apt-get install -y curl libevent-dev && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y libevent-2.0-5 && rm -rf /var/lib/apt/lists/*
 
 ENV MEMCACHED_VERSION 1.4.21
 ENV MEMCACHED_SHA1 ab10c46dd9f5d4401872d9670e575afa5bc7d66f
 
-RUN buildDeps='gcc libc6-dev make perl'; \
+RUN buildDeps='curl gcc libc6-dev libevent-dev make perl'; \
 	set -x \
 	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
@@ -26,4 +26,5 @@ RUN buildDeps='gcc libc6-dev make perl'; \
 
 EXPOSE 11211
 
-CMD ["memcached", "-u", "memcache", "-v"]
+USER memcache
+CMD ["memcached"]
