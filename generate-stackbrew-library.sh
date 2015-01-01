@@ -7,7 +7,7 @@ url='git://github.com/docker-library/memcached'
 
 echo '# maintainer: InfoSiftr <github@infosiftr.com> (@infosiftr)'
 
-commit="$(git log -1 --format='format:%H' .)"
+commit="$(git log -1 --format='format:%H' -- .)"
 fullVersion="$(grep -m1 'ENV MEMCACHED_VERSION ' Dockerfile | cut -d' ' -f3)"
 
 versionAliases=()
