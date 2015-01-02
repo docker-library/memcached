@@ -8,5 +8,5 @@ sha1="$(curl -sSL "http://memcached.org/files/memcached-$fullVersion.tar.gz.sha1
 set -x
 sed -ri '
 	s/^(ENV MEMCACHED_VERSION) .*/\1 '"$fullVersion"'/;
-	s/^(ENV WORDPRESS_SHA1) .*/\1 '"$sha1"'/;
+	s/^(ENV MEMCACHED_SHA1) .*/\1 '"$sha1"'/;
 ' Dockerfile
