@@ -5,8 +5,8 @@ RUN groupadd -r memcache && useradd -r -g memcache memcache
 
 RUN apt-get update && apt-get install -y libevent-2.0-5 && rm -rf /var/lib/apt/lists/*
 
-ENV MEMCACHED_VERSION 1.4.23
-ENV MEMCACHED_SHA1 121fc548860f4e7d4d5052f9816cc6ff4cc5a10d
+ENV MEMCACHED_VERSION 1.4.24
+ENV MEMCACHED_SHA1 32a798a37ef782da10a09d74aa1e5be91f2861db
 
 RUN buildDeps='curl gcc libc6-dev libevent-dev make perl' \
 	&& set -x \
