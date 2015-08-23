@@ -3,7 +3,9 @@ FROM debian:jessie
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r memcache && useradd -r -g memcache memcache
 
-RUN apt-get update && apt-get install -y libevent-2.0-5 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y --no-install-recommends \
+		libevent-2.0-5 \
+	&& rm -rf /var/lib/apt/lists/*
 
 ENV MEMCACHED_VERSION 1.4.24
 ENV MEMCACHED_SHA1 32a798a37ef782da10a09d74aa1e5be91f2861db
@@ -24,7 +26,9 @@ RUN buildDeps='curl gcc libc6-dev libevent-dev make perl' \
 	&& cd / && rm -rf /usr/src/memcached \
 	&& apt-get purge -y --auto-remove $buildDeps
 
-EXPOSE 11211
+COPY docker-entrypoint.sh /entrypoint.sh
+ENTRYPOINT ["/entrypoint.sh"]
 
 USER memcache
+EXPOSE 11211
 CMD ["memcached"]
