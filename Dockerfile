@@ -27,4 +27,4 @@ RUN buildDeps='curl gcc libc6-dev libevent-dev make perl' \
 EXPOSE 11211
 
 USER memcache
-CMD ["memcached"]
+ENTRYPOINT ["memcached"]
