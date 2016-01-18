@@ -1,15 +1,19 @@
 language: bash
 services: docker
 
+env:
+  - VERSION=latest
+  - VERSION=latest VARIANT=alpine
+
 install:
   - git clone https://github.com/docker-library/official-images.git ~/official-images
 
 before_script:
   - env | sort
-  - image='memcached'
+  - image="memcached:${VERSION}${VARIANT:+-${VARIANT}}"
 
 script:
-  - docker build -t "$image" .
+  - docker build -t "$image" "${VARIANT:-.}"
   - ~/official-images/test/run.sh "$image"
 
 after_script:
