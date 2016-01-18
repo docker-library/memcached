@@ -14,7 +14,7 @@ RUN buildDeps='curl gcc libc6-dev libevent-dev make perl' \
 	&& set -x \
 	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& curl -SL "http://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" -o memcached.tar.gz \
+    && curl -SL "https://github.com/memcached/memcached/archive/$MEMCACHED_VERSION.tar.gz" -o memcached.tar.gz \
 	&& echo "$MEMCACHED_SHA1 memcached.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/memcached \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
