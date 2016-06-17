@@ -14,11 +14,11 @@ RUN set -x \
 		linux-headers \
 		make \
 		perl \
+		tar \
 	&& wget -O memcached.tar.gz "http://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
-	&& mkdir -p /usr/src \
-	&& tar -xzf memcached.tar.gz -C /usr/src \
-	&& mv "/usr/src/memcached-$MEMCACHED_VERSION" /usr/src/memcached \
+	&& mkdir -p /usr/src/memcached \
+	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
 	&& rm memcached.tar.gz \
 	&& cd /usr/src/memcached \
 	&& ./configure \
