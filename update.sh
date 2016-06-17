@@ -9,4 +9,4 @@ set -x
 sed -ri '
 	s/^(ENV MEMCACHED_VERSION) .*/\1 '"$fullVersion"'/;
 	s/^(ENV MEMCACHED_SHA1) .*/\1 '"$sha1"'/;
-' Dockerfile
+' */Dockerfile
