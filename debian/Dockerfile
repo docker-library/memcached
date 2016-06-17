@@ -10,24 +10,32 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV MEMCACHED_VERSION 1.4.25
 ENV MEMCACHED_SHA1 7fd0ba9283c61204f196638ecf2e9295688b2314
 
-RUN buildDeps='curl gcc libc6-dev libevent-dev make perl' \
+RUN buildDeps=' \
+		gcc \
+		libc6-dev \
+		libevent-dev \
+		make \
+		perl \
+		wget \
+	' \
 	&& set -x \
 	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
-	&& curl -SL "http://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" -o memcached.tar.gz \
+	&& wget -O memcached.tar.gz "http://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/memcached \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
 	&& rm memcached.tar.gz \
 	&& cd /usr/src/memcached \
 	&& ./configure \
-	&& make \
+	&& make -j$(nproc) \
 	&& make install \
 	&& cd / && rm -rf /usr/src/memcached \
 	&& apt-get purge -y --auto-remove $buildDeps
 
-COPY docker-entrypoint.sh /entrypoint.sh
-ENTRYPOINT ["/entrypoint.sh"]
+COPY docker-entrypoint.sh /usr/local/bin/
+RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
+ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER memcache
 EXPOSE 11211
