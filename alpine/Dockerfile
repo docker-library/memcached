@@ -3,8 +3,8 @@ FROM alpine:3.3
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN adduser -D memcache
 
-ENV MEMCACHED_VERSION 1.4.25
-ENV MEMCACHED_SHA1 7fd0ba9283c61204f196638ecf2e9295688b2314
+ENV MEMCACHED_VERSION 1.4.26
+ENV MEMCACHED_SHA1 f0d4f89ead2ac48c6b9e8070178279c0a3d45559
 
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \
@@ -21,8 +21,6 @@ RUN set -x \
 	&& mv "/usr/src/memcached-$MEMCACHED_VERSION" /usr/src/memcached \
 	&& rm memcached.tar.gz \
 	&& cd /usr/src/memcached \
-# https://github.com/memcached/memcached/issues/138
-	&& sed -i -e 's:#include <sys/signal.h>:#include <signal.h>:' *.c \
 	&& ./configure \
 	&& make -j$(getconf _NPROCESSORS_ONLN) \
 	&& make install \
