@@ -33,6 +33,10 @@ RUN buildDeps=' \
 	&& make -j$(nproc) \
 	&& make install \
 	&& cd / && rm -rf /usr/src/memcached \
+	&& touch /var/log/memcached.log \
+	&& chown memcache:memcache /var/log/memcached.log \
+	&& chmod 644 /var/log/memcached.log \
+	&& ln -sf /dev/stdout /var/log/memcached.log \
 	&& apt-get purge -y --auto-remove $buildDeps
 
 COPY docker-entrypoint.sh /usr/local/bin/
