@@ -8,6 +8,8 @@ ENV MEMCACHED_SHA1 7c7214f5183c6e20c22b243e21ed1ffddb91497e
 
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \
+		coreutils \
+		dpkg-dev dpkg \
 		gcc \
 		libc-dev \
 		libevent-dev \
@@ -21,8 +23,8 @@ RUN set -x \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
 	&& rm memcached.tar.gz \
 	&& cd /usr/src/memcached \
-	&& ./configure \
-	&& make -j$(getconf _NPROCESSORS_ONLN) \
+	&& ./configure --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+	&& make -j "$(nproc)" \
 	&& make install \
 	&& cd / && rm -rf /usr/src/memcached \
 	&& runDeps="$( \
