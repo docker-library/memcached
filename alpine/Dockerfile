@@ -3,8 +3,8 @@ FROM alpine:3.5
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN adduser -D memcache
 
-ENV MEMCACHED_VERSION 1.4.34
-ENV MEMCACHED_SHA1 7c7214f5183c6e20c22b243e21ed1ffddb91497e
+ENV MEMCACHED_VERSION 1.4.35
+ENV MEMCACHED_SHA1 787991c0df75defbb91518c9796f8244852a018a
 
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \

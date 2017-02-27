@@ -7,8 +7,8 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 		libevent-2.0-5 \
 	&& rm -rf /var/lib/apt/lists/*
 
-ENV MEMCACHED_VERSION 1.4.34
-ENV MEMCACHED_SHA1 7c7214f5183c6e20c22b243e21ed1ffddb91497e
+ENV MEMCACHED_VERSION 1.4.35
+ENV MEMCACHED_SHA1 787991c0df75defbb91518c9796f8244852a018a
 
 RUN set -x \
 	&& buildDeps=' \
