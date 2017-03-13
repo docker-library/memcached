@@ -9,6 +9,7 @@ ENV MEMCACHED_SHA1 787991c0df75defbb91518c9796f8244852a018a
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \
 		coreutils \
+		cyrus-sasl-dev \
 		dpkg-dev dpkg \
 		gcc \
 		libc-dev \
@@ -23,7 +24,9 @@ RUN set -x \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
 	&& rm memcached.tar.gz \
 	&& cd /usr/src/memcached \
-	&& ./configure --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+	&& ./configure \
+		--build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+		--enable-sasl \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& cd / && rm -rf /usr/src/memcached \
@@ -35,7 +38,8 @@ RUN set -x \
 			| sort -u \
 	)" \
 	&& apk add --virtual .memcached-rundeps $runDeps \
-	&& apk del .build-deps
+	&& apk del .build-deps \
+	&& memcached -V
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
