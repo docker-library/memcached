@@ -3,10 +3,6 @@ FROM debian:jessie-slim
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r memcache && useradd -r -g memcache memcache
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-		libevent-2.0-5 \
-	&& rm -rf /var/lib/apt/lists/*
-
 ENV MEMCACHED_VERSION 1.4.35
 ENV MEMCACHED_SHA1 787991c0df75defbb91518c9796f8244852a018a
 
@@ -16,6 +12,7 @@ RUN set -x \
 		gcc \
 		libc6-dev \
 		libevent-dev \
+		libsasl2-dev \
 		make \
 		perl \
 		wget \
@@ -28,11 +25,17 @@ RUN set -x \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
 	&& rm memcached.tar.gz \
 	&& cd /usr/src/memcached \
-	&& ./configure --build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+	&& ./configure \
+		--build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+		--enable-sasl \
 	&& make -j "$(nproc)" \
 	&& make install \
 	&& cd / && rm -rf /usr/src/memcached \
-	&& apt-get purge -y --auto-remove $buildDeps
+	&& apt-mark manual \
+		libevent-2.0-5 \
+		libsasl2-2 \
+	&& apt-get purge -y --auto-remove $buildDeps \
+	&& memcached -V
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
