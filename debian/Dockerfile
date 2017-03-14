@@ -8,6 +8,7 @@ ENV MEMCACHED_SHA1 787991c0df75defbb91518c9796f8244852a018a
 
 RUN set -x \
 	&& buildDeps=' \
+		ca-certificates \
 		dpkg-dev \
 		gcc \
 		libc6-dev \
