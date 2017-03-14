@@ -8,17 +8,19 @@ ENV MEMCACHED_SHA1 787991c0df75defbb91518c9796f8244852a018a
 
 RUN set -x \
 	&& apk add --no-cache --virtual .build-deps \
+		ca-certificates \
 		coreutils \
 		cyrus-sasl-dev \
 		dpkg-dev dpkg \
 		gcc \
 		libc-dev \
 		libevent-dev \
+		libressl \
 		linux-headers \
 		make \
 		perl \
 		tar \
-	&& wget -O memcached.tar.gz "http://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
+	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/memcached \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
