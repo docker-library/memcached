@@ -3,8 +3,8 @@ FROM debian:jessie-slim
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd -r memcache && useradd -r -g memcache memcache
 
-ENV MEMCACHED_VERSION 1.4.36
-ENV MEMCACHED_SHA1 519b417515206b0b95ff9bf14106a891f6a2252e
+ENV MEMCACHED_VERSION 1.4.37
+ENV MEMCACHED_SHA1 6a6c2ab70e9470fef939afff1cb58b7602077611
 
 RUN set -x \
 	&& buildDeps=' \
