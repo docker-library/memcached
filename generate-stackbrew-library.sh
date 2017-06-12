@@ -26,6 +26,22 @@ dirCommit() {
 	)
 }
 
+getArches() {
+	local repo="$1"; shift
+	local officialImagesUrl='https://github.com/docker-library/official-images/raw/master/library/'
+
+	eval "declare -g -A parentRepoToArches=( $(
+		find -name 'Dockerfile' -exec awk '
+				toupper($1) == "FROM" && $2 !~ /^('"$repo"'|scratch|microsoft\/[^:]+)(:|$)/ {
+					print "'"$officialImagesUrl"'" $2
+				}
+			' '{}' + \
+			| sort -u \
+			| xargs bashbrew cat --format '[{{ .RepoName }}:{{ .TagName }}]="{{ join " " .TagEntry.Architectures }}"'
+	) )"
+}
+getArches 'memcached'
+
 cat <<-EOH
 # this file is generated via https://github.com/docker-library/memcached/blob/$(fileCommit "$self")/$self
 
@@ -63,9 +79,13 @@ for variant in debian alpine; do
 		variantAliases=( "${versionAliases[@]}" )
 	fi
 
+	parent="$(awk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile")"
+	arches="${parentRepoToArches[$parent]}"
+
 	echo
 	cat <<-EOE
 		Tags: $(join ', ' "${variantAliases[@]}")
+		Architectures: $(join ', ' $arches)
 		GitCommit: $commit
 		Directory: $variant
 	EOE
