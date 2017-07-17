@@ -7,6 +7,7 @@ ENV MEMCACHED_VERSION 1.4.39
 ENV MEMCACHED_SHA1 9d6f77f4f9f1b50289882fd88851dece7699c74b
 
 RUN set -x \
+	\
 	&& apk add --no-cache --virtual .build-deps \
 		ca-certificates \
 		coreutils \
@@ -20,18 +21,29 @@ RUN set -x \
 		make \
 		perl \
 		tar \
+	\
 	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/memcached \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
 	&& rm memcached.tar.gz \
+	\
 	&& cd /usr/src/memcached \
+	\
+# https://github.com/memcached/memcached/issues/286
+	&& wget -O musl.patch 'https://github.com/memcached/memcached/commit/18316347865978868d70cc70dad54df2e3a8357e.patch' \
+	&& patch -p1 < musl.patch \
+	\
 	&& ./configure \
 		--build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
 		--enable-sasl \
 	&& make -j "$(nproc)" \
+	\
+	&& make test \
 	&& make install \
+	\
 	&& cd / && rm -rf /usr/src/memcached \
+	\
 	&& runDeps="$( \
 		scanelf --needed --nobanner --recursive /usr/local \
 			| awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
@@ -41,6 +53,7 @@ RUN set -x \
 	)" \
 	&& apk add --virtual .memcached-rundeps $runDeps \
 	&& apk del .build-deps \
+	\
 	&& memcached -V
 
 COPY docker-entrypoint.sh /usr/local/bin/
