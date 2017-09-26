@@ -53,4 +53,5 @@ ENTRYPOINT ["docker-entrypoint.sh"]
 
 USER memcache
 EXPOSE 11211
+HEALTHCHECK --interval=2s --timeout=1s --retries=5 CMD pidof memcached || exit 1
 CMD ["memcached"]
