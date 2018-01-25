@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-fullVersion="$(curl -sSL 'http://memcached.org/files/' | grep -E '<a href="memcached-[0-9.]+\.tar\.gz"' | sed -r 's!.*<a href="memcached-([0-9.]+)\.tar\.gz".*!\1!' | sort -V | tail -1)"
+fullVersion="$(curl -sSL 'https://memcached.org/files/' | grep -E '<a href="memcached-[0-9.]+\.tar\.gz"' | sed -r 's!.*<a href="memcached-([0-9.]+)\.tar\.gz".*!\1!' | sort -V | tail -1)"
 
-sha1="$(curl -sSL "http://memcached.org/files/memcached-$fullVersion.tar.gz.sha1" | cut -d' ' -f1)"
+sha1="$(curl -sSL "https://memcached.org/files/memcached-$fullVersion.tar.gz.sha1" | cut -d' ' -f1)"
 
 set -x
 sed -ri '
