@@ -1,12 +1,31 @@
-#!/bin/bash
-set -e
+#!/usr/bin/env bash
+set -Eeuo pipefail
 
-fullVersion="$(curl -sSL 'https://memcached.org/files/' | grep -E '<a href="memcached-[0-9.]+\.tar\.gz"' | sed -r 's!.*<a href="memcached-([0-9.]+)\.tar\.gz".*!\1!' | sort -V | tail -1)"
+versions="$(
+	git ls-remote --tags 'https://github.com/memcached/memcached.git' \
+		| grep -E '^[0-9]+' \
+		| grep -vE -- '-(beta|rc)' \
+		| cut -d/ -f3- \
+		| cut -d^ -f1 \
+		| sort -urV
+)"
 
-sha1="$(curl -sSL "https://memcached.org/files/memcached-$fullVersion.tar.gz.sha1" | cut -d' ' -f1)"
+fullVersion=
+sha1=
+for version in $versions; do
+	if sha1="$(curl -fsSL "https://memcached.org/files/memcached-$version.tar.gz.sha1")" && [ -n "$sha1" ]; then
+		sha1="${sha1%% *}"
+		fullVersion="$version"
+		break
+	fi
+done
+if [ -z "$fullVersion" ] || [ -z "$sha1" ]; then
+	echo >&2 "error: could not determine latest release of memcached"
+	exit 1
+fi
 
 set -x
-sed -ri '
-	s/^(ENV MEMCACHED_VERSION) .*/\1 '"$fullVersion"'/;
-	s/^(ENV MEMCACHED_SHA1) .*/\1 '"$sha1"'/;
-' */Dockerfile
+sed -ri \
+	-e 's/^(ENV MEMCACHED_VERSION) .*/\1 '"$fullVersion"'/' \
+	-e 's/^(ENV MEMCACHED_SHA1) .*/\1 '"$sha1"'/' \
+	*/Dockerfile
