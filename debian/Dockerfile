@@ -1,7 +1,7 @@
 FROM debian:stretch-slim
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN groupadd -r memcache && useradd -r -g memcache memcache
+RUN groupadd -r -g 999 memcache && useradd -r -u 999 -g memcache memcache
 
 ENV MEMCACHED_VERSION 1.5.7
 ENV MEMCACHED_SHA1 31d6f6b80668025e4616aa2ad5c7a45f24ed9665
@@ -51,6 +51,6 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-USER memcache
+USER 999
 EXPOSE 11211
 CMD ["memcached"]

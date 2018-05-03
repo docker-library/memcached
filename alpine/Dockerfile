@@ -1,7 +1,7 @@
 FROM alpine:3.7
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN adduser -D memcache
+RUN adduser -D -u 1000 memcache
 
 ENV MEMCACHED_VERSION 1.5.7
 ENV MEMCACHED_SHA1 31d6f6b80668025e4616aa2ad5c7a45f24ed9665
@@ -56,6 +56,6 @@ COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
 ENTRYPOINT ["docker-entrypoint.sh"]
 
-USER memcache
+USER 1000
 EXPOSE 11211
 CMD ["memcached"]
