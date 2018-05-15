@@ -33,6 +33,7 @@ RUN set -x \
 	\
 	&& ./configure \
 		--build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+		--enable-extstore \
 		--enable-sasl \
 	&& make -j "$(nproc)" \
 	\
