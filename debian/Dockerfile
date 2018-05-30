@@ -30,11 +30,22 @@ RUN set -x \
 	\
 	&& cd /usr/src/memcached \
 	\
+	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+	&& enableExtstore="$( \
+# https://github.com/docker-library/memcached/pull/38
+		case "$gnuArch" in \
+# https://github.com/memcached/memcached/issues/381 "--enable-extstore on s390x (IBM System Z mainframe architecture) fails tests"
+			s390x-*) ;; \
+			*) echo '--enable-extstore' ;; \
+		esac \
+	)" \
 	&& ./configure \
-		--build="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
+		--build="$gnuArch" \
 		--enable-sasl \
+		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\
+# TODO https://github.com/memcached/memcached/issues/382 "t/chunked-extstore.t is flaky on arm32v6"
 	&& make test \
 	&& make install \
 	\
