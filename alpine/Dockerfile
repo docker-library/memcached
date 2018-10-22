@@ -1,7 +1,13 @@
 FROM alpine:3.8
 
+ARG MEMCACHED_UID=11211
+ARG MEMCACHED_GID=11211
+
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
-RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
+RUN set -x \
+    \
+    && addgroup -g ${MEMCACHED_UID} memcache \
+    && adduser -D -u ${MEMCACHED_GID} -G memcache memcache
 
 ENV MEMCACHED_VERSION 1.5.11
 ENV MEMCACHED_SHA1 59b800337ae4bb164b85a5779fa5b72d5f9af66c
