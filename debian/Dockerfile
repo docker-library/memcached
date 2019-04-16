@@ -3,8 +3,8 @@ FROM debian:stretch-slim
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd --system --gid 11211 memcache && useradd --system --gid memcache --uid 11211 memcache
 
-ENV MEMCACHED_VERSION 1.5.12
-ENV MEMCACHED_SHA1 f67096ba64b0c47668bcad5b680010c4f8987d4c
+ENV MEMCACHED_VERSION 1.5.13
+ENV MEMCACHED_SHA1 f0ddd566a55fdc5397d458cf3b3806b5cb48bb18
 
 RUN set -x \
 	\
@@ -29,6 +29,11 @@ RUN set -x \
 	&& rm memcached.tar.gz \
 	\
 	&& cd /usr/src/memcached \
+	\
+# https://github.com/memcached/memcached/pull/480 (hopefully to be removed in 1.5.14)
+	&& wget -O wait_ext_flush.patch 'https://github.com/memcached/memcached/pull/480.patch' \
+	&& patch -p1 --input=wait_ext_flush.patch \
+	&& rm wait_ext_flush.patch \
 	\
 	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
 	&& enableExtstore="$( \
