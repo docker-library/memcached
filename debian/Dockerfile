@@ -19,7 +19,7 @@ RUN set -x \
 		perl \
 		wget \
 	' \
-	&& apt-get update && apt-get install -y $buildDeps --no-install-recommends \
+	&& apt-get update && apt-get install -y $buildDeps libsasl2-modules --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
 	\
 	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
@@ -42,6 +42,7 @@ RUN set -x \
 	&& ./configure \
 		--build="$gnuArch" \
 		--enable-sasl \
+		--enable-sasl-pwdb \
 		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\

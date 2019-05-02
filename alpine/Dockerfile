@@ -44,6 +44,7 @@ RUN set -x \
 	&& ./configure \
 		--build="$gnuArch" \
 		--enable-sasl \
+		--enable-sasl-pwdb \
 		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\
@@ -59,7 +60,7 @@ RUN set -x \
 			| sort -u \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" \
-	&& apk add --virtual .memcached-rundeps $runDeps \
+	&& apk add --virtual .memcached-rundeps $runDeps cyrus-sasl-plain \
 	&& apk del .build-deps \
 	\
 	&& memcached -V
