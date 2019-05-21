@@ -3,8 +3,8 @@ FROM debian:stretch-slim
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd --system --gid 11211 memcache && useradd --system --gid memcache --uid 11211 memcache
 
-ENV MEMCACHED_VERSION 1.5.14
-ENV MEMCACHED_SHA1 94592688ae685caf53ab90a821c99f1503bb1018
+ENV MEMCACHED_VERSION 1.5.15
+ENV MEMCACHED_SHA1 9e54bf92c4c6cf861d38119461df35cf2dd790ae
 
 RUN set -x \
 	\
