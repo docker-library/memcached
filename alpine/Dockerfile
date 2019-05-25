@@ -3,8 +3,8 @@ FROM alpine:3.9
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
 
-ENV MEMCACHED_VERSION 1.5.15
-ENV MEMCACHED_SHA1 9e54bf92c4c6cf861d38119461df35cf2dd790ae
+ENV MEMCACHED_VERSION 1.5.16
+ENV MEMCACHED_SHA1 06a9661638cb20232d0ccea088f52ca10b959968
 
 RUN set -x \
 	\
