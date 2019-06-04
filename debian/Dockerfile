@@ -3,12 +3,22 @@ FROM debian:stretch-slim
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd --system --gid 11211 memcache && useradd --system --gid memcache --uid 11211 memcache
 
+# ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
+RUN set -eux; \
+	apt-get update; \
+	apt-get install -y --no-install-recommends \
+		libsasl2-modules \
+	; \
+	rm -rf /var/lib/apt/lists/*
+
 ENV MEMCACHED_VERSION 1.5.16
 ENV MEMCACHED_SHA1 06a9661638cb20232d0ccea088f52ca10b959968
 
 RUN set -x \
 	\
-	&& buildDeps=' \
+	&& savedAptMark="$(apt-mark showmanual)" \
+	&& apt-get update \
+	&& apt-get install -y --no-install-recommends \
 		ca-certificates \
 		dpkg-dev \
 		gcc \
@@ -18,8 +28,6 @@ RUN set -x \
 		make \
 		perl \
 		wget \
-	' \
-	&& apt-get update && apt-get install -y $buildDeps libsasl2-modules --no-install-recommends \
 	&& rm -rf /var/lib/apt/lists/* \
 	\
 	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
@@ -52,10 +60,16 @@ RUN set -x \
 	\
 	&& cd / && rm -rf /usr/src/memcached \
 	\
-	&& apt-mark manual \
-		libevent-2.0-5 \
-		libsasl2-2 \
-	&& apt-get purge -y --auto-remove $buildDeps \
+	&& apt-mark auto '.*' > /dev/null \
+	&& apt-mark manual $savedAptMark > /dev/null \
+	&& find /usr/local -type f -executable -exec ldd '{}' ';' \
+		| awk '/=>/ { print $(NF-1) }' \
+		| sort -u \
+		| xargs -r dpkg-query --search \
+		| cut -d: -f1 \
+		| sort -u \
+		| xargs -r apt-mark manual \
+	&& apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false \
 	\
 	&& memcached -V
 

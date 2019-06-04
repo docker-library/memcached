@@ -3,6 +3,9 @@ FROM alpine:3.9
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
 
+# ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
+RUN apk add --no-cache cyrus-sasl-plain
+
 ENV MEMCACHED_VERSION 1.5.16
 ENV MEMCACHED_SHA1 06a9661638cb20232d0ccea088f52ca10b959968
 
@@ -60,7 +63,7 @@ RUN set -x \
 			| sort -u \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" \
-	&& apk add --virtual .memcached-rundeps $runDeps cyrus-sasl-plain \
+	&& apk add --virtual .memcached-rundeps $runDeps \
 	&& apk del .build-deps \
 	\
 	&& memcached -V
