@@ -63,8 +63,8 @@ RUN set -x \
 			| sort -u \
 			| awk 'system("[ -e /usr/local/lib/" $1 " ]") == 0 { next } { print "so:" $1 }' \
 	)" \
-	&& apk add --no-cache --virtual .memcached-rundeps $runDeps \
-	&& apk del .build-deps \
+	&& apk add --no-network --virtual .memcached-rundeps $runDeps \
+	&& apk del --no-network .build-deps \
 	\
 	&& memcached -V
 
