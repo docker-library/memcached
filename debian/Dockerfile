@@ -23,6 +23,7 @@ RUN set -x \
 		dpkg-dev \
 		gcc \
 		libc6-dev \
+		libssl-dev \
 		libevent-dev \
 		libsasl2-dev \
 		make \
@@ -51,6 +52,7 @@ RUN set -x \
 		--build="$gnuArch" \
 		--enable-sasl \
 		--enable-sasl-pwdb \
+		--enable-tls \
 		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\
