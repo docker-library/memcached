@@ -24,7 +24,9 @@ RUN set -x \
 		gcc \
 		libc6-dev \
 		libevent-dev \
+		libio-socket-ssl-perl \
 		libsasl2-dev \
+		libssl-dev \
 		make \
 		perl \
 		wget \
@@ -51,11 +53,15 @@ RUN set -x \
 		--build="$gnuArch" \
 		--enable-sasl \
 		--enable-sasl-pwdb \
+		--enable-tls \
 		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\
+# see https://github.com/docker-library/memcached/pull/54#issuecomment-562797748 and https://bugs.debian.org/927461 for why we have to munge openssl.cnf
+	&& sed -i.bak 's/SECLEVEL=2/SECLEVEL=1/g' /etc/ssl/openssl.cnf \
 # TODO https://github.com/memcached/memcached/issues/382 "t/chunked-extstore.t is flaky on arm32v6"
 	&& make test \
+	&& mv /etc/ssl/openssl.cnf.bak /etc/ssl/openssl.cnf \
 	&& make install \
 	\
 	&& cd / && rm -rf /usr/src/memcached \
