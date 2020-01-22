@@ -22,7 +22,9 @@ RUN set -x \
 		linux-headers \
 		make \
 		openssl \
+		openssl-dev \
 		perl \
+		perl-io-socket-ssl \
 		perl-utils \
 		tar \
 		wget \
@@ -48,6 +50,7 @@ RUN set -x \
 		--build="$gnuArch" \
 		--enable-sasl \
 		--enable-sasl-pwdb \
+		--enable-tls \
 		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\
