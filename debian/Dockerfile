@@ -11,8 +11,8 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV MEMCACHED_VERSION 1.5.22
-ENV MEMCACHED_SHA1 3fe5d3929130e860efcfde18d4d396a29db006b7
+ENV MEMCACHED_VERSION 1.6.0
+ENV MEMCACHED_SHA1 fe6ac14e6e98d4b7ff8293cea359b21342bc9c68
 
 RUN set -x \
 	\
