@@ -3,10 +3,10 @@ set -Eeuo pipefail
 
 versions="$(
 	git ls-remote --tags 'https://github.com/memcached/memcached.git' \
-		| grep -E '^[0-9]+' \
-		| grep -vE -- '-(beta|rc)' \
 		| cut -d/ -f3- \
 		| cut -d^ -f1 \
+		| grep -E '^[0-9]+' \
+		| grep -vE -- '-(beta|rc)' \
 		| sort -urV
 )"
 
