@@ -59,8 +59,10 @@ RUN set -x \
 	\
 # see https://github.com/docker-library/memcached/pull/54#issuecomment-562797748 and https://bugs.debian.org/927461 for why we have to munge openssl.cnf
 	&& sed -i.bak 's/SECLEVEL=2/SECLEVEL=1/g' /etc/ssl/openssl.cnf \
+# https://github.com/docker-library/memcached/issues/60
+	&& sed -ri -e 's/sleep\(5\)/sleep(7)/g' t/idle-timeout.t \
 # TODO https://github.com/memcached/memcached/issues/382 "t/chunked-extstore.t is flaky on arm32v6"
-	&& make test \
+	&& PARALLEL="$(nproc)" make test \
 	&& mv /etc/ssl/openssl.cnf.bak /etc/ssl/openssl.cnf \
 	&& make install \
 	\

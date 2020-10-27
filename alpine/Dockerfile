@@ -54,8 +54,10 @@ RUN set -x \
 		$enableExtstore \
 	&& make -j "$(nproc)" \
 	\
+# https://github.com/docker-library/memcached/issues/60
+	&& sed -ri -e 's/sleep\(5\)/sleep(7)/g' t/idle-timeout.t \
 # TODO https://github.com/memcached/memcached/issues/382 "t/chunked-extstore.t is flaky on arm32v6"
-	&& make test \
+	&& PARALLEL="$(nproc)" make test \
 	&& make install \
 	\
 	&& cd / && rm -rf /usr/src/memcached \
