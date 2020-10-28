@@ -52,10 +52,11 @@ RUN set -x \
 		--enable-sasl-pwdb \
 		--enable-tls \
 		$enableExtstore \
-	&& make -j "$(nproc)" \
+	&& nproc="$(nproc)" \
+	&& make -j "$nproc" \
 	\
-# TODO https://github.com/memcached/memcached/issues/382 "t/chunked-extstore.t is flaky on arm32v6"
-	&& make test \
+	&& make test PARALLEL="$nproc" \
+	\
 	&& make install \
 	\
 	&& cd / && rm -rf /usr/src/memcached \
