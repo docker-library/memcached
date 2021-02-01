@@ -1,10 +1,10 @@
-FROM alpine:3.12
+FROM alpine:3.13
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
 
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
-RUN apk add --no-cache cyrus-sasl-plain
+RUN apk add --no-cache libsasl
 
 ENV MEMCACHED_VERSION 1.6.9
 ENV MEMCACHED_SHA1 42ae062094fdf083cfe7b21ff377c781011c2be1
@@ -15,7 +15,6 @@ RUN set -x \
 		ca-certificates \
 		coreutils \
 		cyrus-sasl-dev \
-		dpkg-dev dpkg \
 		gcc \
 		libc-dev \
 		libevent-dev \
@@ -26,8 +25,6 @@ RUN set -x \
 		perl \
 		perl-io-socket-ssl \
 		perl-utils \
-		tar \
-		wget \
 	\
 	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
@@ -37,21 +34,12 @@ RUN set -x \
 	\
 	&& cd /usr/src/memcached \
 	\
-	&& gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)" \
-	&& enableExtstore="$( \
-# https://github.com/docker-library/memcached/pull/38
-		case "$gnuArch" in \
-# https://github.com/memcached/memcached/issues/381 "--enable-extstore on s390x (IBM System Z mainframe architecture) fails tests"
-			s390x-*) ;; \
-			*) echo '--enable-extstore' ;; \
-		esac \
-	)" \
 	&& ./configure \
 		--build="$gnuArch" \
+		--enable-extstore \
 		--enable-sasl \
 		--enable-sasl-pwdb \
 		--enable-tls \
-		$enableExtstore \
 	&& nproc="$(nproc)" \
 	&& make -j "$nproc" \
 	\
