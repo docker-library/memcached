@@ -72,14 +72,26 @@ for variant in debian alpine; do
 		latest
 	)
 
-	variantAliases=( "${versionAliases[@]/%/-$variant}" )
-	variantAliases=( "${variantAliases[@]//latest-/}" )
-
 	if [ "$variant" = 'debian' ]; then
 		variantAliases=( "${versionAliases[@]}" )
+	else
+		variantAliases=( "${versionAliases[@]/%/-$variant}" )
+		variantAliases=( "${variantAliases[@]//latest-/}" )
 	fi
 
 	parent="$(awk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile")"
+
+	suite="${parent#*:}" # "buster-slim", "buster"
+	suite="${suite%-slim}" # "buster"
+	if [ "$variant" = 'alpine' ]; then
+		suite="alpine$suite" # "alpine3.8"
+		suiteAliases=( "${versionAliases[@]/%/-$suite}" )
+	else
+		suiteAliases=( "${variantAliases[@]/%/-$suite}" )
+	fi
+	suiteAliases=( "${suiteAliases[@]//latest-/}" )
+	variantAliases+=( "${suiteAliases[@]}" )
+
 	arches="${parentRepoToArches[$parent]}"
 
 	echo
