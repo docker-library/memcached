@@ -81,10 +81,10 @@ for variant in debian alpine; do
 
 	parent="$(awk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile")"
 
-	suite="${parent#*:}" # "buster-slim", "buster"
-	suite="${suite%-slim}" # "buster"
+	suite="${parent#*:}" # "bullseye-slim", "bullseye"
+	suite="${suite%-slim}" # "bullseye"
 	if [ "$variant" = 'alpine' ]; then
-		suite="alpine$suite" # "alpine3.8"
+		suite="alpine$suite" # "alpine3.14"
 		suiteAliases=( "${versionAliases[@]/%/-$suite}" )
 	else
 		suiteAliases=( "${variantAliases[@]/%/-$suite}" )
