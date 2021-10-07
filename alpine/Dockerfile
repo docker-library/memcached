@@ -22,6 +22,7 @@ RUN set -x \
 		make \
 		openssl \
 		openssl-dev \
+		patch \
 		perl \
 		perl-io-socket-ssl \
 		perl-utils \
@@ -35,7 +36,9 @@ RUN set -x \
 	&& cd /usr/src/memcached \
 	\
 # https://github.com/docker-library/memcached/issues/71#issuecomment-937067759 🙈
-	&& sed -i -e '/cdefs/d' queue.h \
+	&& wget -O cdefs.patch 'https://github.com/memcached/memcached/commit/7e570c789f4473354461e6eeb8bb7a283df613bf.patch' \
+	&& patch -p1 --input=cdefs.patch \
+	&& rm cdefs.patch \
 	\
 	&& ./configure \
 		--build="$gnuArch" \
