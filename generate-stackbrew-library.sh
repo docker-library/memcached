@@ -94,6 +94,9 @@ for variant in debian alpine; do
 
 	arches="${parentRepoToArches[$parent]}"
 
+	# https://github.com/memcached/memcached/issues/799
+	arches="$(sed -r -e 's/ arm32v6 / /g' <<<" $arches ")"
+
 	echo
 	cat <<-EOE
 		Tags: $(join ', ' "${variantAliases[@]}")
