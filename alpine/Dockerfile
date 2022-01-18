@@ -6,8 +6,8 @@ RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
 RUN apk add --no-cache libsasl
 
-ENV MEMCACHED_VERSION 1.6.12
-ENV MEMCACHED_SHA1 40d43e98f149e13e6c81eee813e6734f23413a01
+ENV MEMCACHED_VERSION 1.6.13
+ENV MEMCACHED_SHA1 b9da57ba63ba8de8a980fe0fe2fedc8d59e1dfe3
 
 RUN set -x \
 	\
@@ -22,7 +22,6 @@ RUN set -x \
 		make \
 		openssl \
 		openssl-dev \
-		patch \
 		perl \
 		perl-io-socket-ssl \
 		perl-utils \
@@ -34,11 +33,6 @@ RUN set -x \
 	&& rm memcached.tar.gz \
 	\
 	&& cd /usr/src/memcached \
-	\
-# https://github.com/docker-library/memcached/issues/71#issuecomment-937067759 🙈
-	&& wget -O cdefs.patch 'https://github.com/memcached/memcached/commit/7e570c789f4473354461e6eeb8bb7a283df613bf.patch' \
-	&& patch -p1 --input=cdefs.patch \
-	&& rm cdefs.patch \
 	\
 	&& ./configure \
 		--build="$gnuArch" \
