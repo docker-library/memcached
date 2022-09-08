@@ -6,6 +6,7 @@ RUN groupadd --system --gid 11211 memcache && useradd --system --gid memcache --
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
 RUN set -eux; \
 	apt-get update; \
+    apt-get upgrade; \
 	apt-get install -y --no-install-recommends \
 		libsasl2-modules \
 	; \
