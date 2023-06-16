@@ -6,8 +6,8 @@ RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
 RUN apk add --no-cache libsasl
 
-ENV MEMCACHED_VERSION 1.6.20
-ENV MEMCACHED_SHA1 face85ed6fad41432ad818445b24eca55bccdd78
+ENV MEMCACHED_VERSION 1.6.21
+ENV MEMCACHED_SHA1 6d899680b4ba4b76b6c92120143cf87630ee984a
 
 RUN set -x \
 	\
