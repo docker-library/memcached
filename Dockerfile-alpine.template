@@ -1,4 +1,4 @@
-FROM alpine:3.18
+FROM alpine:{{ env.variant | ltrimstr("alpine") }}
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
@@ -6,8 +6,9 @@ RUN addgroup -g 11211 memcache && adduser -D -u 11211 -G memcache memcache
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
 RUN apk add --no-cache libsasl
 
-ENV MEMCACHED_VERSION 1.6.22
-ENV MEMCACHED_SHA1 7a691f390d59616dbebfc9e2e4942d499c39a338
+ENV MEMCACHED_VERSION {{ .version }}
+ENV MEMCACHED_DOWNLOAD_URL {{ .downloadUrl }}
+ENV MEMCACHED_SHA1 {{ .sha1 }}
 
 RUN set -x \
 	\
@@ -26,7 +27,7 @@ RUN set -x \
 		perl-io-socket-ssl \
 		perl-utils \
 	\
-	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
+	&& wget -O memcached.tar.gz "$MEMCACHED_DOWNLOAD_URL" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/memcached \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \

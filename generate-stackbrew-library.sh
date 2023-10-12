@@ -1,8 +1,17 @@
-#!/bin/bash
+#!/usr/bin/env bash
 set -eu
+
+declare -A aliases=(
+	[1.6]='latest'
+)
 
 self="$(basename "$BASH_SOURCE")"
 cd "$(dirname "$(readlink -f "$BASH_SOURCE")")"
+
+if [ "$#" -eq 0 ]; then
+	versions="$(jq -r 'keys | map(@sh) | join(" ")' versions.json)"
+	eval "set -- $versions"
+fi
 
 # get the most recent commit which modified any of "$@"
 fileCommit() {
@@ -57,10 +66,16 @@ join() {
 	echo "${out#$sep}"
 }
 
-for variant in debian alpine; do
-	commit="$(dirCommit "$variant")"
+for version; do
+	export version
 
-	fullVersion="$(git show "$commit":"$variant/Dockerfile" | awk '$1 == "ENV" && $2 == "MEMCACHED_VERSION" { print $3; exit }')"
+	variants="$(jq -r '.[env.version].variants | map(@sh) | join(" ")' versions.json)"
+	eval "variants=( $variants )"
+
+	alpine="$(jq -r '.[env.version].alpine' versions.json)"
+	debian="$(jq -r '.[env.version].debian' versions.json)"
+
+	fullVersion="$(jq -r '.[env.version].version' versions.json)"
 
 	versionAliases=()
 	while [ "${fullVersion%.*}" != "$fullVersion" ]; do
@@ -69,40 +84,42 @@ for variant in debian alpine; do
 	done
 	versionAliases+=(
 		$fullVersion
-		latest
+		${aliases[$version]:-}
 	)
 
-	if [ "$variant" = 'debian' ]; then
-		variantAliases=( "${versionAliases[@]}" )
-	else
+	for variant in "${variants[@]}"; do
+		dir="$version/$variant"
+		commit="$(dirCommit "$dir")"
+
+		parent="$(awk 'toupper($1) == "FROM" { print $2 }' "$dir/Dockerfile")"
+		arches="${parentRepoToArches[$parent]}"
+
 		variantAliases=( "${versionAliases[@]/%/-$variant}" )
 		variantAliases=( "${variantAliases[@]//latest-/}" )
-	fi
 
-	parent="$(awk 'toupper($1) == "FROM" { print $2 }' "$variant/Dockerfile")"
+		case "$variant" in
+			"$debian")
+				variantAliases=(
+					"${versionAliases[@]}"
+					"${variantAliases[@]}"
+				)
+				;;
+			alpine"$alpine")
+				variantAliases+=( "${versionAliases[@]/%/-alpine}" )
+				variantAliases=( "${variantAliases[@]//latest-/}" )
+				;;
+		esac
 
-	suite="${parent#*:}" # "bookworm-slim", "bookworm"
-	suite="${suite%-slim}" # "bookworm"
-	if [ "$variant" = 'alpine' ]; then
-		suite="alpine$suite" # "alpine3.14"
-		suiteAliases=( "${versionAliases[@]/%/-$suite}" )
-	else
-		suiteAliases=( "${variantAliases[@]/%/-$suite}" )
-	fi
-	suiteAliases=( "${suiteAliases[@]//latest-/}" )
-	variantAliases+=( "${suiteAliases[@]}" )
+		# https://github.com/memcached/memcached/issues/799
+		# https://github.com/docker-library/memcached/issues/69
+		arches="$(sed -r -e 's/ arm32v6 / /g' <<<" $arches ")"
 
-	arches="${parentRepoToArches[$parent]}"
-
-	# https://github.com/memcached/memcached/issues/799
-	# https://github.com/docker-library/memcached/issues/69
-	arches="$(sed -r -e 's/ arm32v6 / /g' <<<" $arches ")"
-
-	echo
-	cat <<-EOE
-		Tags: $(join ', ' "${variantAliases[@]}")
-		Architectures: $(join ', ' $arches)
-		GitCommit: $commit
-		Directory: $variant
-	EOE
+		echo
+		cat <<-EOE
+			Tags: $(join ', ' "${variantAliases[@]}")
+			Architectures: $(join ', ' $arches)
+			GitCommit: $commit
+			Directory: $dir
+		EOE
+	done
 done
