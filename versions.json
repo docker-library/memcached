@@ -1,0 +1,13 @@
+{
+  "1.6": {
+    "alpine": "3.18",
+    "debian": "bookworm",
+    "downloadUrl": "https://memcached.org/files/memcached-1.6.22.tar.gz",
+    "sha1": "7a691f390d59616dbebfc9e2e4942d499c39a338",
+    "variants": [
+      "bookworm",
+      "alpine3.18"
+    ],
+    "version": "1.6.22"
+  }
+}

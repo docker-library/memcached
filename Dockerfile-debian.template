@@ -1,4 +1,4 @@
-FROM debian:bookworm-slim
+FROM debian:{{ env.variant }}-slim
 
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
 RUN groupadd --system --gid 11211 memcache && useradd --system --gid memcache --uid 11211 memcache
@@ -11,8 +11,9 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV MEMCACHED_VERSION 1.6.22
-ENV MEMCACHED_SHA1 7a691f390d59616dbebfc9e2e4942d499c39a338
+ENV MEMCACHED_VERSION {{ .version }}
+ENV MEMCACHED_DOWNLOAD_URL {{ .downloadUrl }}
+ENV MEMCACHED_SHA1 {{ .sha1 }}
 
 RUN set -x \
 	\
@@ -32,7 +33,7 @@ RUN set -x \
 		wget \
 	&& rm -rf /var/lib/apt/lists/* \
 	\
-	&& wget -O memcached.tar.gz "https://memcached.org/files/memcached-$MEMCACHED_VERSION.tar.gz" \
+	&& wget -O memcached.tar.gz "$MEMCACHED_DOWNLOAD_URL" \
 	&& echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c - \
 	&& mkdir -p /usr/src/memcached \
 	&& tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1 \
