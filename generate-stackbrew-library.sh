@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-set -eu
+set -Eeuo pipefail
 
 declare -A aliases=(
-	[1.6]='latest'
+	[1]='latest'
 )
 
 self="$(basename "$BASH_SOURCE")"
@@ -69,12 +69,6 @@ join() {
 for version; do
 	export version
 
-	variants="$(jq -r '.[env.version].variants | map(@sh) | join(" ")' versions.json)"
-	eval "variants=( $variants )"
-
-	alpine="$(jq -r '.[env.version].alpine' versions.json)"
-	debian="$(jq -r '.[env.version].debian' versions.json)"
-
 	fullVersion="$(jq -r '.[env.version].version' versions.json)"
 
 	versionAliases=()
@@ -87,28 +81,30 @@ for version; do
 		${aliases[$version]:-}
 	)
 
-	for variant in "${variants[@]}"; do
+	for variant in debian alpine; do
+		export variant
 		dir="$version/$variant"
+
 		commit="$(dirCommit "$dir")"
+
+		if [ "$variant" = 'debian' ]; then
+			variantAliases=( "${versionAliases[@]}" )
+		else
+			variantAliases=( "${versionAliases[@]/%/-$variant}" )
+			variantAliases=( "${variantAliases[@]//latest-/}" )
+		fi
 
 		parent="$(awk 'toupper($1) == "FROM" { print $2 }' "$dir/Dockerfile")"
 		arches="${parentRepoToArches[$parent]}"
 
-		variantAliases=( "${versionAliases[@]/%/-$variant}" )
-		variantAliases=( "${variantAliases[@]//latest-/}" )
-
-		case "$variant" in
-			"$debian")
-				variantAliases=(
-					"${versionAliases[@]}"
-					"${variantAliases[@]}"
-				)
-				;;
-			alpine"$alpine")
-				variantAliases+=( "${versionAliases[@]/%/-alpine}" )
-				variantAliases=( "${variantAliases[@]//latest-/}" )
-				;;
-		esac
+		suite="${parent#*:}" # "bookworm-slim", "bookworm"
+		suite="${suite%-slim}" # "bookworm"
+		if [ "$variant" = 'alpine' ]; then
+			suite="alpine$suite" # "alpine3.18"
+		fi
+		suiteAliases=( "${versionAliases[@]/%/-$suite}" )
+		suiteAliases=( "${suiteAliases[@]//latest-/}" )
+		variantAliases+=( "${suiteAliases[@]}" )
 
 		# https://github.com/memcached/memcached/issues/799
 		# https://github.com/docker-library/memcached/issues/69
