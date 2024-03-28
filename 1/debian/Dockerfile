@@ -19,9 +19,9 @@ RUN set -eux; \
 	; \
 	rm -rf /var/lib/apt/lists/*
 
-ENV MEMCACHED_VERSION 1.6.25
-ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.25.tar.gz
-ENV MEMCACHED_SHA1 8825b31936100c90439d2447182ca2d49ecca9a0
+ENV MEMCACHED_VERSION 1.6.26
+ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.26.tar.gz
+ENV MEMCACHED_SHA1 03b9ea47eb9819bf0f53f48db908f45150f1072b
 
 RUN set -eux; \
 	\
