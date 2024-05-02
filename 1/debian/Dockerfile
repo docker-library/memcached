@@ -6,7 +6,12 @@
 
 FROM debian:bookworm-slim
 
+# The global SOURCE_DATE_EPOCH is consumed by commands that are not associated with a source artifact.
+# This is not propagated from --build-arg: https://github.com/moby/buildkit/issues/4576#issuecomment-2159501282
+ENV SOURCE_DATE_EPOCH 0
+
 # add our user and group first to make sure their IDs get assigned consistently, regardless of whatever dependencies get added
+# On Debian, useradd recognizes SOURCE_DATE_EPOCH to reproduce the "lastchanged" field in /etc/shadow.
 RUN set -eux; \
 	groupadd --system --gid 11211 memcache; \
 	useradd --system --gid memcache --uid 11211 memcache
@@ -17,7 +22,9 @@ RUN set -eux; \
 	apt-get install -y --no-install-recommends \
 		libsasl2-modules \
 	; \
-	rm -rf /var/lib/apt/lists/*
+	rm -rf /var/lib/apt/lists/*; \
+# clean up for reproducibility
+	rm -rf /var/log/* /var/cache/ldconfig/aux-cache
 
 ENV MEMCACHED_VERSION 1.6.31
 ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.31.tar.gz
@@ -41,6 +48,8 @@ RUN set -eux; \
 		wget \
 	; \
 	rm -rf /var/lib/apt/lists/*; \
+# clean up for reproducibility
+	rm -rf /var/log/* /var/cache/ldconfig/aux-cache; \
 	\
 	wget -O memcached.tar.gz "$MEMCACHED_URL"; \
 	echo "$MEMCACHED_SHA1  memcached.tar.gz" | sha1sum -c -; \
@@ -51,6 +60,10 @@ RUN set -eux; \
 	cd /usr/src/memcached; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+	SOURCE_DATE_EPOCH="$(find . -type f -exec stat -c '%Y' {} + | sort -nr | head -n1)"; \
+	export SOURCE_DATE_EPOCH; \
+# for logging validation/edification
+	date --date "@$SOURCE_DATE_EPOCH" --rfc-2822; \
 	./configure \
 		--build="$gnuArch" \
 		--enable-extstore \
@@ -82,8 +95,12 @@ RUN set -eux; \
 		| xargs -r apt-mark manual \
 	; \
 	apt-get purge -y --auto-remove -o APT::AutoRemove::RecommendsImportant=false; \
+# clean up for reproducibility
+	rm -rf /var/log/* /var/cache/ldconfig/aux-cache; \
 	\
-	memcached -V
+	memcached -V ;\
+# clean up for reproducibility
+	rm -rf /tmp/*
 
 COPY docker-entrypoint.sh /usr/local/bin/
 RUN ln -s usr/local/bin/docker-entrypoint.sh /entrypoint.sh # backwards compat
