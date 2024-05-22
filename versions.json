@@ -4,7 +4,7 @@
     "url": "https://memcached.org/files/memcached-1.6.27.tar.gz",
     "sha1": "baf2e7494e1f62d275ff29a99f270abbdb923f75",
     "alpine": {
-      "version": "3.19"
+      "version": "3.20"
     },
     "debian": {
       "version": "bookworm"
