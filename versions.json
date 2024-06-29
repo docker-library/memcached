@@ -1,8 +1,8 @@
 {
   "1": {
-    "version": "1.6.28",
-    "url": "https://memcached.org/files/memcached-1.6.28.tar.gz",
-    "sha1": "d7857f9bf51abb2d2106fc6c278682d2f5d7471b",
+    "version": "1.6.29",
+    "url": "https://memcached.org/files/memcached-1.6.29.tar.gz",
+    "sha1": "a9699aed111d86b6e37b3ce5e6ef4e7539582d5f",
     "alpine": {
       "version": "3.20"
     },
