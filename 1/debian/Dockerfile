@@ -48,12 +48,20 @@ RUN set -eux; \
 	tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1; \
 	rm memcached.tar.gz; \
 	\
+# https://github.com/memcached/memcached/issues/1220
+# https://github.com/memcached/memcached/pull/1221
+	wget -O memcached-time-overflow.patch 'https://github.com/tianon/memcached/commit/8d4e02984661a3a26decc5a45d62a9eeaaf72986.patch?full_index=1'; \
+	echo '59f068d1fe4819ec65ec8c7adc8c5ecf8a7753ba5c6e5a17e5ba42c9946074a2 *memcached-time-overflow.patch' | sha256sum -c -; \
+	patch --input="$PWD/memcached-time-overflow.patch" --strip=1 --directory=/usr/src/memcached; \
+	rm memcached-time-overflow.patch; \
+	\
 	cd /usr/src/memcached; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
 	./configure \
 		--build="$gnuArch" \
 		--enable-extstore \
+		--enable-proxy \
 		--enable-sasl \
 		--enable-sasl-pwdb \
 		--enable-tls \
