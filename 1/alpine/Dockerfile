@@ -66,7 +66,8 @@ RUN set -eux; \
 	nproc="$(nproc)"; \
 	make -j "$nproc"; \
 	\
-	make test PARALLEL="$nproc"; \
+# try the tests in parallel first, but many of them are resource-intensive, so fall back to serial
+	make test PARALLEL="$nproc" || make test; \
 	\
 	make install; \
 	\
