@@ -55,6 +55,10 @@ RUN set -eux; \
 	cd /usr/src/memcached; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
+# https://github.com/memcached/memcached/issues/1220#issuecomment-2770251664: on arm32, we need to override the upstream alignment check (which fails to detect the need for alignment on arm32v6+ on our hardware for some reason, which then causes us to fail the tests 😭)
+	case "$gnuArch" in \
+		arm-*abihf) export ac_cv_c_alignment=need ;; \
+	esac; \
 	./configure \
 		--build="$gnuArch" \
 		--enable-extstore \
