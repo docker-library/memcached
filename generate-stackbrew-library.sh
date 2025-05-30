@@ -108,6 +108,13 @@ for version; do
 		suiteAliases=( "${suiteAliases[@]//latest-/}" )
 		variantAliases+=( "${suiteAliases[@]}" )
 
+		if [ "$variant" = 'alpine' ]; then
+			# https://github.com/memcached/memcached/issues/799
+			# https://github.com/docker-library/memcached/issues/69
+			arches="$(sed -r -e 's/ arm32v6 / /g' <<<" $arches ")"
+			arches="$(sed -r -e 's/ arm32v7 / /g' <<<" $arches ")"
+		fi
+
 		echo
 		cat <<-EOE
 			Tags: $(join ', ' "${variantAliases[@]}")
