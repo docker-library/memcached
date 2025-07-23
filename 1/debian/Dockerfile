@@ -63,6 +63,13 @@ RUN set -eux; \
 	patch --input="$PWD/memcached-extstore-test-stability.patch" --strip=1 --directory=/usr/src/memcached; \
 	rm memcached-extstore-test-stability.patch; \
 	\
+# https://github.com/memcached/memcached/issues/799
+# https://github.com/memcached/memcached/pull/1237
+	wget -O memcached-stop_time.patch 'https://github.com/memcached/memcached/commit/37c94672231c471de2d75ff73f46ec9e72f15f44.patch?full_index=1'; \
+	echo '9d33a0c277b406fd79303ff58eab205a3a54ae2b4431ba239fb99a46a1903eff *memcached-stop_time.patch' | sha256sum -c -; \
+	patch --input="$PWD/memcached-stop_time.patch" --strip=1 --directory=/usr/src/memcached; \
+	rm memcached-stop_time.patch; \
+	\
 	cd /usr/src/memcached; \
 	\
 	gnuArch="$(dpkg-architecture --query DEB_BUILD_GNU_TYPE)"; \
