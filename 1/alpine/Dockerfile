@@ -14,9 +14,9 @@ RUN set -eux; \
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
 RUN apk add --no-cache libsasl
 
-ENV MEMCACHED_VERSION 1.6.38
-ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.38.tar.gz
-ENV MEMCACHED_SHA1 2d132faaf4d4ffa4c1b5f55b2f09056a0e9181dd
+ENV MEMCACHED_VERSION 1.6.39
+ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.39.tar.gz
+ENV MEMCACHED_SHA1 132d165af4d032d97081a2ccda645595d6bbb17b
 
 RUN set -eux; \
 	\
@@ -35,8 +35,6 @@ RUN set -eux; \
 		perl \
 		perl-io-socket-ssl \
 		perl-utils \
-# temporary, see below
-		patch \
 	; \
 	\
 	wget -O memcached.tar.gz "$MEMCACHED_URL"; \
@@ -44,28 +42,6 @@ RUN set -eux; \
 	mkdir -p /usr/src/memcached; \
 	tar -xzf memcached.tar.gz -C /usr/src/memcached --strip-components=1; \
 	rm memcached.tar.gz; \
-	\
-# https://github.com/memcached/memcached/issues/1220
-# https://github.com/memcached/memcached/pull/1221
-# https://github.com/memcached/memcached/commit/1a0a0b2591176a7c82412e27f3e17ba9133cd8dd
-	wget -O memcached-time-overflow.patch 'https://github.com/memcached/memcached/commit/1a0a0b2591176a7c82412e27f3e17ba9133cd8dd.patch?full_index=1'; \
-	echo '12441b94e0c35e2bd4511d10b799b731f3aae7428f196d34eccefb68351ed0f0 *memcached-time-overflow.patch' | sha256sum -c -; \
-	patch --input="$PWD/memcached-time-overflow.patch" --strip=1 --directory=/usr/src/memcached; \
-	rm memcached-time-overflow.patch; \
-	\
-# https://github.com/memcached/memcached/issues/1220#issuecomment-2762952480
-# https://github.com/memcached/memcached/commit/a2e47b5afdf6ad7deeb54ce9fb1d45cf8cfd1024
-	wget -O memcached-extstore-test-stability.patch 'https://github.com/memcached/memcached/commit/a2e47b5afdf6ad7deeb54ce9fb1d45cf8cfd1024.patch?full_index=1'; \
-	echo 'a421465488e2ffac5fe3d956598f030f5b06399af3dbb4e36ecebdd368245b4b *memcached-extstore-test-stability.patch' | sha256sum -c -; \
-	patch --input="$PWD/memcached-extstore-test-stability.patch" --strip=1 --directory=/usr/src/memcached; \
-	rm memcached-extstore-test-stability.patch; \
-	\
-# https://github.com/memcached/memcached/issues/799
-# https://github.com/memcached/memcached/pull/1237
-	wget -O memcached-stop_time.patch 'https://github.com/memcached/memcached/commit/37c94672231c471de2d75ff73f46ec9e72f15f44.patch?full_index=1'; \
-	echo '9d33a0c277b406fd79303ff58eab205a3a54ae2b4431ba239fb99a46a1903eff *memcached-stop_time.patch' | sha256sum -c -; \
-	patch --input="$PWD/memcached-stop_time.patch" --strip=1 --directory=/usr/src/memcached; \
-	rm memcached-stop_time.patch; \
 	\
 	cd /usr/src/memcached; \
 	\
