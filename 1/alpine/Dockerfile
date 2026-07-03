@@ -14,9 +14,9 @@ RUN set -eux; \
 # ensure SASL's "libplain.so" is installed as per https://github.com/memcached/memcached/wiki/SASLHowto
 RUN apk add --no-cache libsasl
 
-ENV MEMCACHED_VERSION 1.6.42
-ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.42.tar.gz
-ENV MEMCACHED_SHA1 de453f58745238c70091fe243549c406aabdc3c5
+ENV MEMCACHED_VERSION 1.6.43
+ENV MEMCACHED_URL https://memcached.org/files/memcached-1.6.43.tar.gz
+ENV MEMCACHED_SHA1 37307d13528f355fb282bc8841ca033272e44ac9
 
 RUN set -eux; \
 	\
